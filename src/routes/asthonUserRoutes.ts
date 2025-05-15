@@ -1,18 +1,25 @@
 import { Router } from "express";
-import { AsthonUserController } from "../controllers/asthonUserController";
+import {
+  deleteOccurrence,
+  deleteUser,
+} from "../controllers/asthonUserController";
 import { authenticateToken } from "../middlewares/authMiddleware";
+import { roleMiddleware } from "../middlewares/roleMiddleware";
+import { Role } from "../models/userModel";
 
 const router = Router();
 
 router.delete(
-  "/deleteOccurrence/:id",
+  "/deleteOccurrence",
   authenticateToken,
-  AsthonUserController.deleteOccurrence
+  roleMiddleware([Role.ASTHON]),
+  deleteOccurrence
 );
 router.delete(
-  "/deleteUser/:email",
+  "/deleteUser",
   authenticateToken,
-  AsthonUserController.deleteUser
+  roleMiddleware([Role.ASTHON]),
+  deleteUser
 );
 
 export default router;

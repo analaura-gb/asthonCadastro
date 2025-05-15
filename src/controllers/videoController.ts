@@ -1,25 +1,20 @@
 import { Request, Response } from "express";
-import { VideoService } from "../services/videoService";
+import * as MediaService from "../services/mediaService";
 
-const service = new VideoService();
+export const getDuration = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const id = parseInt(req.query.id as string);
+    const resolution = await MediaService.getDuration(id);
 
-export class VideoController {
-  static async getVideosByMediaCode(req: Request, res: Response) {
-    try {
-      const mediaCode = Number(req.params.mediaCode);
-      const videos = await service.getVideosByMediaCode(mediaCode);
-      res.json(videos);
-    } catch (error) {
-      res.status(500).json({ error: "Erro ao buscar vídeos" });
+    if (!resolution) {
+      res.status(404).json({ error: "No alerts found for this client" });
     }
-  }
 
-  static async registerVideo(req: Request, res: Response) {
-    try {
-      await service.registerVideo(req.body);
-      res.status(201).json({ message: "Vídeo registrado com sucesso" });
-    } catch (error) {
-      res.status(500).json({ error: "Erro ao registrar vídeo" });
-    }
+    res.json(resolution);
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao buscar alertas enviados" });
   }
-}
+};

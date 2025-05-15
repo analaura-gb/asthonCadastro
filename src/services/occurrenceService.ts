@@ -1,24 +1,51 @@
 import pool from "../config/mysql";
-import { Occurrence } from "../models/occurrenceModel";
+import { OccurrenceModel } from "../models/occurrenceModel";
+import { ResultSetHeader } from "mysql2";
 
-export class OccurrenceService {
-  async getOccurrences(): Promise<Occurrence[]> {
-    const [rows] = await pool.query("SELECT * FROM occurrence");
-    return rows as Occurrence[];
+export const getOccurrences = async (): Promise<OccurrenceModel[]> => {
+  const [rows] = await pool.query("SELECT * FROM Occurrence");
+  return rows as OccurrenceModel[];
+};
+
+export const getOccurrenceById = async (
+  id: number
+): Promise<OccurrenceModel[] | null> => {
+  const [rows]: any = await pool.query(
+    "SELECT * FROM Occurrence WHERE id = ?",
+    [id]
+  );
+
+  if (rows.length === 0) {
+    return null;
   }
 
-  async getOccurrenceById(id: number): Promise<Occurrence | null> {
-    const [rows]: any = await pool.query(
-      "SELECT * FROM occurrence WHERE id = ?",
-      [id]
-    );
-    return rows[0] || null;
-  }
+  return rows as OccurrenceModel[];
+};
 
-  async registerOccurrence(data: Omit<Occurrence, "id">): Promise<void> {
-    await pool.query(
-      "INSERT INTO occurrence (description, city, date, status) VALUES (?, ?, ?, ?)",
-      [data.description, data.city, data.date, data.status]
-    );
-  }
-}
+export const postOccurrence = async (
+  data: Omit<OccurrenceModel, "id">
+): Promise<OccurrenceModel> => {
+  const { description, cityId, date } = data;
+  const [result] = await pool.query(
+    "INSERT INTO Occurrence (description, cityId, date) VALUES (?, ?, ?)",
+    [description, cityId, date]
+  );
+
+  const insertResult = result as ResultSetHeader;
+  return {
+    id: insertResult.insertId,
+    description,
+    cityId,
+    date,
+  };
+};
+
+export const deleteOccurrence = async (id: number): Promise<boolean> => {
+  const [result] = await pool.query<ResultSetHeader>(
+    "DELETE FROM Occurrence WHERE id = ?",
+    [id]
+  );
+
+  console.log(result);
+  return result.affectedRows > 0;
+};

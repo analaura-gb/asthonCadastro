@@ -1,34 +1,42 @@
 import { Request, Response } from "express";
-import { CommonUserService } from "../services/commonUserService";
+import * as OccurrenceService from "../services/occurrenceService";
+import * as MediaService from "../services/mediaService";
 
-const service = new CommonUserService();
+export const postOccurrence = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { occurrence, media } = req.body;
 
-export class CommonUserController {
-  static async register(req: Request, res: Response) {
-    try {
-      const { name, email, password } = req.body;
-      const user = await service.register(name, email, password);
-      res.status(201).json(user);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      } else {
-        res.status(500).json({ error: "Erro desconhecido" });
-      }
+    const createdOccurrence = await OccurrenceService.postOccurrence(
+      occurrence
+    );
+
+    if (!createdOccurrence) {
+      res.status(404).json({ error: "Erro ao cadastrar ocorrência" });
+      return;
+    }
+
+    const createdMediaList = [];
+
+    for (const m of media) {
+      const createdMedia = await MediaService.postMedia({
+        ...m,
+        occurrenceId: createdOccurrence.id, // garantir vinculação correta
+      });
+      createdMediaList.push(createdMedia);
+    }
+
+    res.status(201).json({
+      occurrence: createdOccurrence,
+      media: createdMediaList,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: "Erro desconhecido" });
     }
   }
-
-  static async login(req: Request, res: Response) {
-    try {
-      const { email, password } = req.body;
-      const token = await service.login(email, password);
-      res.json({ token });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(401).json({ error: error.message });
-      } else {
-        res.status(401).json({ error: "Erro desconhecido" });
-      }
-    }
-  }
-}
+};

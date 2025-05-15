@@ -1,22 +1,36 @@
-import { RequestHandler } from "express";
-import { LoginService } from "../services/loginService";
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
 
-const loginService = new LoginService();
+const JWT_SECRET = process.env.JWT_SECRET || "secret";
 
-export const authenticateToken: RequestHandler = (req, res, next) => {
+export const authenticateToken = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   const authHeader = req.headers.authorization;
-  const token = authHeader?.split(" ")[1];
 
-  if (!token) {
-    res.status(401).json({ error: "Token não fornecido" });
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    res.status(401).json({ error: "Token ausente ou inválido" });
     return;
   }
 
+  const token = authHeader.split(" ")[1];
+
   try {
-    const user = loginService.verifyToken(token);
-    (req as any).user = user;
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    if (typeof decoded === "string") {
+      res.status(401).json({ error: "Token inválido" });
+      return;
+    }
+
+    const { id, email, role } = decoded as any;
+
+    (req as any).user = { id, email, role };
     next();
   } catch (error) {
-    res.status(403).json({ error: "Token inválido" });
+    res.status(401).json({ error: "Token inválido" });
+    return;
   }
 };

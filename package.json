@@ -2,9 +2,11 @@
   "name": "asthonadastro",
   "version": "1.0.0",
   "description": "Node.js backend using TypeScript with an MVC architecture for managing cities, alerts, and media, powered by a MySQL relational database.",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
-    "test": "tsc && echo \"No tests specified\""
+    "dev": "nodemon --watch src --exec ts-node src/index.ts",
+    "build": "npx prisma generate && tsc",
+    "start": "nodemon dist/index.ts"
   },
   "repository": {
     "type": "git",
@@ -15,7 +17,6 @@
     "typescript",
     "backend",
     "mysql",
-    "influxdb",
     "mvc",
     "express",
     "rest-api",
@@ -26,18 +27,27 @@
   "author": "Ana Laura Gonçalves Braga",
   "license": "LGPL-3.0",
   "dependencies": {
+    "@prisma/client": "^6.7.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.14.0"
+    "knex": "^3.1.0",
+    "mysql2": "^3.14.1",
+    "nodemon": "^3.1.10"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
+    "@types/dotenv": "^8.2.3",
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.9",
-    "@types/node": "^22.14.1"
+    "@types/knex": "^0.16.1",
+    "@types/node": "^22.15.16",
+    "prisma": "^6.7.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
   }
 }

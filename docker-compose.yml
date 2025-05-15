@@ -1,0 +1,29 @@
+services:
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "${PASSWORDDB_ROOT}"
+      MYSQL_USER: "${USERDB}"
+      MYSQL_PASSWORD: "${PASSWORDDB}"
+      MYSQL_DATABASE: "${DATABASEDB}"
+    ports:
+      - "${PORTDB_EXPOSE}:${PORTDB}"
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+
+  api:
+    build: .
+    depends_on:
+      - db
+    env_file:
+      - .env
+    ports:
+      - "${PORTAPI}:${PORTAPI}"
+      - "${PORTPRSIMA}:${PORTPRSIMA}"
+    environment:
+      DATABASE_URL: "${DATABASE_URL}"
+    command: npm run dev
+
+volumes:
+  db_data:

@@ -1,12 +1,8 @@
 import { Router } from "express";
-import { PictureController } from "../controllers/pictureController";
+import { getResolution } from "../controllers/pictureController";
 
 const router = Router();
 
-router.get(
-  "/getPicturesByMediaCode/:mediaCode",
-  PictureController.getPicturesByMediaCode
-);
-router.post("/registerPicture", PictureController.registerPicture);
+router.get("/getResolution", getResolution);
 
 export default router;

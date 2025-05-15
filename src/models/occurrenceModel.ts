@@ -1,7 +1,6 @@
-export interface Occurrence {
+export interface OccurrenceModel {
   id: number;
   description: string;
-  city: string;
   date: string;
-  status: string;
+  cityId: number;
 }
