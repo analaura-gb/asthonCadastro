@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import swaggerUi from "swagger-ui-express";
+import swaggerJsdoc from "swagger-jsdoc";
 
 import alertsRoutes from "./routes/alertsRoutes";
 import commonUserRoutes from "./routes/commonUserRoutes";
@@ -19,6 +21,34 @@ const port = process.env.PORTAPI;
 
 app.use(cors());
 app.use(express.json());
+
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Cadastro API",
+      version: "1.0.0",
+      description: "API para gerenciar dados no cenário",
+    },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
+  },
+  apis: ["./src/schemas/*.ts"],
+};
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/alerts", alertsRoutes);
 app.use("/common", commonUserRoutes);

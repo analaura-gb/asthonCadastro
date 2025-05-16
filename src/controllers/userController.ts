@@ -32,7 +32,13 @@ export const getProfile = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { email, password } = req.body;
+    if (!req.query.email || !req.query.password) {
+      res.status(400).json({ error: "Parâmetro 'email' é obrigatório" });
+      return;
+    }
+
+    const email = req.query.email.toString();
+    const password = req.query.password.toString();
 
     const user = await userService.getProfile(email); // deve retornar objeto único ou null
 
